@@ -19,7 +19,7 @@ int Day1b(string[] lines)
   
   int freq = 0;
   int index = 0;
-  int MaxTries = 29500123;
+  int MaxTries = 32*1000*1000;
   
   while (history.Add(freq) && index<MaxTries)
   {
@@ -31,6 +31,5 @@ int Day1b(string[] lines)
     return freq;
   }
   
-  Console.WriteLine("ERROR: No duplicate found after many tries?");
-  return -1;
+  throw new Exception("ERROR: No duplicate frequency found after many tries?");
 }
