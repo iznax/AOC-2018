@@ -1,3 +1,7 @@
+// https://adventofcode.com/2018/day/1
+
+// Input is a sequence of +/- integers on separate lines
+// Returns the final frequency from list of change values
 int Day1a(string[] lines)
 {
   int freq = 0;
@@ -8,6 +12,7 @@ int Day1a(string[] lines)
   return freq;
 }
 
+// Returns the first intermediate frequency that occurs twice
 int Day1b(string[] lines)
 {
   HashSet<int> history = new HashSet<int>();
