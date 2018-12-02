@@ -38,6 +38,7 @@
   {
     if (id1.Length == id2.Length)
     {
+#if false
       for (int i = 0; i < id1.Length; ++i)
       {
         if (id1[i] != id2[i])
@@ -45,6 +46,9 @@
           return i;
         }
       }
+#else
+        return id1.TakeWhile((ch,i) => ch == id2[i]).Count();
+#endif
     }
     return -1;
   }
