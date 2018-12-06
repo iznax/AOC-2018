@@ -30,5 +30,18 @@
 
   static int Day5b(string line)
   {
-    // Todo!
+    string work = Day5_Reduce(line);
+    int best = work.Length;
+    for (int i = 0; i < 26; ++i)
+    {
+      string ch1 = ""+(char)('A'+i);
+      string ch2 = ""+(char)('a'+i);
+      string temp = work.Replace(ch1,string.Empty).Replace(ch2,string.Empty);
+      string small = Day5_Reduce(temp);
+      if (small.Length < best)
+      {
+        best = small.Length;
+      }
+    }
+    return best;
   }
