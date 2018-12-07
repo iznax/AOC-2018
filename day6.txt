@@ -1,0 +1,187 @@
+// https://adventofcode.com/2018/day/6
+
+        static int[] Manhattan(int x, int y, List<KeyValuePair<int, int>> points)
+        {
+            int[] dist = new int[points.Count];
+            for (int i = 0; i < dist.Length; ++i)
+            {
+                // Manhattan length
+                int dx = Math.Abs(x - points[i].Key);
+                int dy = Math.Abs(y - points[i].Value);
+                dist[i] = dx + dy;
+            }
+            return dist;
+        }
+
+        static int Shortest(int[] list)
+        {
+            int best = 987654321;
+            int index = -1;
+            bool unique = false;
+            for (int i = 0; i < list.Length; ++i)
+            {
+                if (list[i] < best)
+                {
+                    index = i;
+                    best = list[i];
+                    unique = true;
+                }
+                else if (list[i] == best)
+                {
+                    unique = false;
+                }
+            }
+            return unique ? index : -1;
+        }
+
+        class Line
+        {
+            Dictionary<int, int> Row = new Dictionary<int, int>();
+
+            public int Width = 0;
+
+            public int Get(int column)
+            {
+                return Row.ContainsKey(column) ? Row[column] : -1;
+            }
+
+            public void Set(int column, int value)
+            {
+                Row[column] = value;
+                Width = Math.Max(Width, column + 1);
+            }
+        };
+
+        static HashSet<int> Edge(Line[] grid)
+        {
+            HashSet<int> all = new HashSet<int>();
+            int width = grid[0].Width;
+            int height = grid.Length;
+            Line top = grid[0];
+            Line bot = grid[height-1];
+            for (int i = 0; i < width; ++i)
+            {
+                int t = top.Get(i); if (t >= 0) all.Add(t);
+                int b = bot.Get(i); if (b >= 0) all.Add(b);
+            }
+            for (int i = 0; i < height; ++i)
+            {
+                int left = grid[i].Get(0);
+                int right = grid[i].Get(width-1);
+                all.Add(left);
+                all.Add(right);
+            }
+            return all;
+        }
+
+        static Dictionary<int, int> CountAll(Line[] grid)
+        {
+            Dictionary<int, int> result = new Dictionary<int, int>();
+            int width = grid[0].Width;
+            for (int i = 0; i < grid.Length; ++i)
+            {
+                for (int x = 0; x < width; ++x)
+                {
+                    int ch = grid[i].Get(x);
+                    int old = result.ContainsKey(ch) ? result[ch] : 0;
+                    result[ch] = old + 1;
+                }
+            }
+            return result;
+        }
+
+        static List<KeyValuePair<int, int>> GetPoints(string[] lines)
+        {
+            List<KeyValuePair<int, int>> points = new List<KeyValuePair<int, int>>();
+            foreach (string item in lines)
+            {
+                string[] parts = item.Split(',');
+                int x = int.Parse(parts[0]);
+                int y = int.Parse(parts[1]);
+                points.Add(new KeyValuePair<int, int>(x, y));
+            }
+            return points;
+        }
+
+        static KeyValuePair<int, int> GetBounds(List<KeyValuePair<int, int>> points)
+        {
+            KeyValuePair<int, int> maxim = new KeyValuePair<int, int>(0, 0);
+            int x = 0;
+            int y = 0;
+            foreach (KeyValuePair<int, int> pos in points)
+            {
+                x = Math.Max(x, pos.Key);
+                y = Math.Max(x, pos.Value);
+            }
+            return new KeyValuePair<int, int>(x, y);
+        }
+
+        static int Day5a(string[] lines)
+        {
+            List<KeyValuePair<int, int>> points = GetPoints(lines);
+
+            // GetRectangleBounds()
+            KeyValuePair<int, int> maxim = GetBounds(points);
+            int x1 = maxim.Key + 1;
+            int y1 = maxim.Value + 1;
+
+            Line[] grid = new Line[y1];
+            for (int iy = 0; iy < y1; ++iy)
+            {
+                Line line = new Line();
+                for (int ix = 0; ix < x1; ++ix)
+                {
+                    int[] dist = Manhattan(ix, iy, points);
+                    int index = Shortest(dist);
+                    if (index >= 0)
+                    {
+                        line.Set(ix, index);
+                    }
+                    else // same distance from multiple points
+                    {
+                        line.Set(ix, -1);
+                    }
+                }
+                grid[iy] = line;
+            }
+
+            HashSet<int> infinite = Edge(grid);
+            Dictionary<int, int> counts = CountAll(grid);
+
+            int best = 0;
+            for (int ch = 0; ch < points.Count; ++ch)
+            {
+                if (!infinite.Contains(ch))
+                {
+                    best = Math.Max(best, counts[ch]);
+                }
+            }
+
+            return best;
+        }
+
+        static int Day5b(string[] lines)
+        {
+            List<KeyValuePair<int, int>> points = GetPoints(lines);
+
+            KeyValuePair<int, int> maxim = GetBounds(points);
+            int x1 = maxim.Key;
+            int y1 = maxim.Value;
+
+            int region = 0;
+
+            for (int iy = 0; iy < y1; ++iy)
+            {
+                for (int ix = 0; ix < x1; ++ix)
+                {
+                    int[] dist = Manhattan(ix, iy, points);
+                    int sum = dist.Sum();
+                    if (sum < 10000)
+                    {
+                        region += 1;
+                    }
+                }
+            }
+
+            return region;
+        }
